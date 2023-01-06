@@ -1,12 +1,15 @@
 import { useState } from "react";
 import {
 	StyleSheet,
-	Text,
 	View,
 	FlatList,
-	TouchableOpacity,
+	Alert,
+	TouchableWithoutFeedback,
+	Keyboard,
 } from "react-native";
 import Header from "./components/header";
+import TodoItem from "./components/TodoItem";
+import Form from "./components/Form";
 
 export default function App() {
 	const [todos, setTodos] = useState([
@@ -21,29 +24,39 @@ export default function App() {
 		});
 	};
 
+	const handleSubmit = (text) => {
+		if (text.length > 3) {
+			setTodos((prevTodos) => {
+				return [{ text: text, key: Math.random().toString() }, ...prevTodos];
+			});
+
+			Keyboard.dismiss();
+		} else {
+			Alert.alert("Todo must be over 3 chars long");
+		}
+	};
+
 	return (
-		<View style={styles.container}>
-			<Header />
-			<View style={styles.content}>
-				{/* to form */}
-				<View style={styles.list}>
-					<FlatList
-						data={todos}
-						renderItem={({ item }) => (
-							<View style={styles.elementContainer}>
-								<Text style={styles.todo}>{item.text}</Text>
-								<TouchableOpacity
-									style={styles.delete}
-									onPress={() => handleDelete(item.key)}
-								>
-									<Text style={styles.deleteText}>Delete</Text>
-								</TouchableOpacity>
-							</View>
-						)}
-					/>
+		<TouchableWithoutFeedback
+			onPress={() => {
+				Keyboard.dismiss();
+			}}
+		>
+			<View style={styles.container}>
+				<Header />
+				<View style={styles.content}>
+					<Form handleSubmit={handleSubmit} />
+					<View style={styles.list}>
+						<FlatList
+							data={todos}
+							renderItem={({ item }) => (
+								<TodoItem item={item} handleDelete={handleDelete} />
+							)}
+						/>
+					</View>
 				</View>
 			</View>
-		</View>
+		</TouchableWithoutFeedback>
 	);
 }
 
@@ -54,30 +67,11 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		paddingHorizontal: 10,
+		flex: 1,
 	},
 	list: {
 		marginTop: 20,
 		width: "100%",
-		height: "100%",
-	},
-	todo: {
-		color: "white",
-		fontSize: "18px",
-		padding: 15,
-		marginVertical: 10,
-		backgroundColor: "royalblue",
-		flexGrow: 1,
-		textAlign: "center",
-	},
-	elementContainer: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-	},
-	deleteText: {
-		color: "white",
-		fontSize: "18px",
-		padding: 15,
-		marginVertical: 10,
-		backgroundColor: "red",
+		flex: 1,
 	},
 });
